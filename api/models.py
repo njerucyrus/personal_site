@@ -7,7 +7,6 @@ from django.db import models
 
 
 class Skill(models.Model):
-    user = models.OneToOneField(User)
     skill_name = models.CharField(max_length=255, )
 
     class Meta:
@@ -19,7 +18,6 @@ class Skill(models.Model):
 
 
 class Project(models.Model):
-    user = models.OneToOneField(User)
     project_title = models.CharField(max_length=200, )
     description = models.TextField(max_length=255, )
     img_1 = models.ImageField(upload_to='images/', blank=True, null=True)
