@@ -4,13 +4,11 @@ from api.models import Skill, Project, UserProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(required=False, max_length=255, write_only=True)
-
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password')
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True, 'required': False}
         }
 
     def create(self, validated_data):

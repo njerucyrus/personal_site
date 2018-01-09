@@ -45,10 +45,10 @@ class UserProfile(models.Model):
     profile_image = models.ImageField(upload_to='images/profiles/', null=True, blank=True)
 
     def __str__(self):
-        return self.phone_number
+        return self.user.email
 
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created , **kwargs):
     user_profile = UserProfile.objects.get_or_create(user=instance)
-    user_profile.save()
+
