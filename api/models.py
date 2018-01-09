@@ -42,7 +42,7 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User)
     phone_number = models.CharField(max_length=13, null=True)
     secondary_email = models.EmailField()
-    profile_image = models.ImageField(upload_to='images/profile', null=True, blank=True)
+    profile_image = models.ImageField(upload_to='images/profiles/', null=True, blank=True)
 
     def __str__(self):
         return self.phone_number

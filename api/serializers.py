@@ -4,6 +4,8 @@ from api.models import Skill, Project, UserProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(required=False, max_length=255, write_only=True)
+
     class Meta:
         model = User
         fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password')
@@ -16,6 +18,13 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return instance
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
