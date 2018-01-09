@@ -2,12 +2,14 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
 
 # Create your models here.
+from django.dispatch import receiver
 
 
 class Skill(models.Model):
-    skill_name = models.CharField(max_length=255, )
+    skill_name = models.CharField(max_length=255, unique=True)
 
     class Meta:
         ordering = ('skill_name', )
@@ -38,10 +40,15 @@ class Project(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
-    phone_number = models.CharField(max_length=13, )
+    phone_number = models.CharField(max_length=13, null=True)
     secondary_email = models.EmailField()
-    profile_image = models.ImageField(upload_to='images/profile')
+    profile_image = models.ImageField(upload_to='images/profile', null=True, blank=True)
 
     def __str__(self):
         return self.phone_number
 
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created , **kwargs):
+    user_profile = UserProfile.objects.get_or_create(user=instance)
+    user_profile.save()

@@ -1,23 +1,44 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from api.models import Skill, Project
+from api.models import Skill, Project, UserProfile
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('__all_', )
+        fields = ('id', 'first_name', 'last_name', 'username', 'email', 'password')
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        user = super(UserSerializer, self).create(validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    profile_image = serializers.ImageField(max_length=False, use_url=True, allow_null=True, required=False)
+
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'user', 'phone_number', 'secondary_email', 'profile_image')
 
 
 class SkillSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Skill
-        fields = ('id', 'skill_name', )
+        fields = ('id', 'skill_name',)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    img_1 = serializers.ImageField(max_length=None, use_url=True, required=False)
+    img_2 = serializers.ImageField(max_length=None, use_url=True, required=False)
+    img_3 = serializers.ImageField(max_length=None, use_url=True, required=False)
+    img_4 = serializers.ImageField(max_length=None, use_url=True, required=False)
+    img_5 = serializers.ImageField(max_length=None, use_url=True, required=False)
 
     class Meta:
         model = Project
