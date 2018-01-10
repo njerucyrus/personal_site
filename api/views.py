@@ -6,16 +6,14 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 
 from api.models import Skill, Project, UserProfile
 from api.serializers import SkillSerializer, ProjectSerializer, UserSerializer, UserProfileSerializer
 
 
 class SkillsView(ListCreateAPIView):
-    def get_queryset(self):
-        return Skill.objects.all()
-
+    queryset = Skill.objects.all()
     serializer_class = SkillSerializer
     # def get(self, request, format=None):
     #     skills = Skill.objects.all()
@@ -31,7 +29,6 @@ class SkillsView(ListCreateAPIView):
 
 
 class SkillDetailView(APIView):
-
     def get_object(self, pk):
         try:
             return Skill.objects.get(pk=pk)
@@ -39,7 +36,7 @@ class SkillDetailView(APIView):
         except Skill.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk , format=None):
+    def get(self, request, pk, format=None):
         skill = self.get_object(pk)
         serializer = SkillSerializer(skill)
         return Response(serializer.data)
@@ -58,97 +55,110 @@ class SkillDetailView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class ProjectsView(APIView):
-    def get(self, request, format=None):
-        projects = Project.objects.all()
-        serializer = ProjectSerializer(projects, many=True)
-        return Response(serializer.data)
+class ProjectsView(ListCreateAPIView):
+    def get_queryset(self):
+        return Project.objects.all()
 
-    def post(self, request, format=None):
-        serializer = ProjectSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ProjectDetailView(APIView):
-
-    def get_object(self, pk):
-        try:
-            return Project.objects.get(pk=pk)
-        except Project.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        project = self.get_object(pk)
-        serializer = ProjectSerializer(project)
-        return Response(serializer.data)
-
-    def put(self, request, pk, format=None):
-        project = self.get_object(pk)
-        serializer = ProjectSerializer(project, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        project = self.get_object(pk)
-        project.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    serializer_class = ProjectSerializer
+    # def get(self, request, format=None):
+    #     projects = Project.objects.all()
+    #     serializer = ProjectSerializer(projects, many=True)
+    #     return Response(serializer.data)
+    #
+    # def post(self, request, format=None):
+    #     serializer = ProjectSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserView(APIView):
-    def get(self, request, format=None):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class ProjectDetailView(RetrieveUpdateDestroyAPIView):
+    serializer_class = ProjectSerializer
+    queryset = Project.objects.all()
 
-    def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserDetailView(APIView):
-
-    def get_object(self, pk):
-        try:
-            return User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        user = self.get_object(pk)
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        user = self.get_object(pk)
-        serializer = UserSerializer(user, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        user = self.get_object(pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def get_object(self, pk):
+    #     try:
+    #         return Project.objects.get(pk=pk)
+    #     except Project.DoesNotExist:
+    #         raise Http404
+    #
+    # def get(self, request, pk, format=None):
+    #     project = self.get_object(pk)
+    #     serializer = ProjectSerializer(project)
+    #     return Response(serializer.data)
+    #
+    # def put(self, request, pk, format=None):
+    #     project = self.get_object(pk)
+    #     serializer = ProjectSerializer(project, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #
+    #     return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk, format=None):
+    #     project = self.get_object(pk)
+    #     project.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserProfileView(APIView):
-    def get(self, request, format=None):
-        profiles = UserProfile.objects.all()
-        serializer = UserProfileSerializer(profiles, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class UserView(ListCreateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    # def get(self, request, format=None):
+    #     users = User.objects.all()
+    #     serializer = UserSerializer(users, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    #
+    # def post(self, request, format=None):
+    #     serializer = UserSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetailView(RetrieveUpdateDestroyAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    # def get_object(self, pk):
+    #     try:
+    #         return User.objects.get(pk=pk)
+    #     except User.DoesNotExist:
+    #         raise Http404
+    #
+    # def get(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     serializer = UserSerializer(user)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
+    #
+    # def put(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     serializer = UserSerializer(user, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    #
+    # def delete(self, request, pk, format=None):
+    #     user = self.get_object(pk)
+    #     user.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserProfileView(ListAPIView):
+    serializer_class = UserProfile
+    queryset = User.objects.all()
+
+    # def get(self, request, format=None):
+    #     profiles = UserProfile.objects.all()
+    #     serializer = UserProfileSerializer(profiles, many=True)
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserProfileDetailView(APIView):
@@ -172,7 +182,3 @@ class UserProfileDetailView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
